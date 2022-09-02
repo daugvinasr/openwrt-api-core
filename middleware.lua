@@ -1,17 +1,21 @@
 local json = require("cjson")
-local jwt = require "/root/uhttpd/luajwt"
-local privateKey = "a1f7a65d-5a1f-49dc-9651-59fab5b038ad"
+local jwt = require "./uhttpd/luajwt"
+local env = require "./uhttpd/env"
 
 local middleware = {}
 
 function middleware.checkIfTokenIsValid(authorization)
-    local type = authorization[1]
-    local token = authorization[2]
-
-    local token, err = jwt.encode('petras', privateKey)
-    logPrint(token)
-
-    return true
+    if authorization["Bearer"] ~= nil then
+        local token = authorization["Bearer"]
+        local decoded, err = jwt.decode(token, env.jwtKey, true) -- forcing token expiry check
+        if decoded ~= nil then
+            return true
+        else
+            return false
+        end
+    else
+        return false
+    end
 end
 
 return middleware

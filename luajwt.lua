@@ -1,11 +1,12 @@
 local cjson  = require 'cjson'
-local base64 = require "/root/uhttpd/base64"
-local crypto = require 'crypto'
+local base64 = require './uhttpd/base64'
+local hmac   = require 'openssl'.hmac
+
 
 local alg_sign = {
-	['HS256'] = function(data, key) return crypto.hmac.digest('sha256', data, key, true) end,
-	['HS384'] = function(data, key) return crypto.hmac.digest('sha384', data, key, true) end,
-	['HS512'] = function(data, key) return crypto.hmac.digest('sha512', data, key, true) end,
+	['HS256'] = function(data, key) return hmac.new('sha256', key):final(data) end,
+	['HS384'] = function(data, key) return hmac.new('sha384', key):final(data) end,
+	['HS512'] = function(data, key) return hmac.new('sha512', key):final(data) end,
 }
 
 local alg_verify = {

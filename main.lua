@@ -1,5 +1,5 @@
-local routes = require "/root/uhttpd/routes"
-local middleware = require "/root/uhttpd/middleware"
+local routes = require "./uhttpd/routes"
+local middleware = require "./uhttpd/middleware"
 local json = require("cjson")
 
 function logPrint(text)
@@ -41,44 +41,43 @@ function getBody(uhttpd, env)
 end
 
 function getParameters(env)
-   if env.QUERY_STRING ~= '' then
+   if env.QUERY_STRING ~= nil and env.QUERY_STRING ~= '' then
       local params = {}
-      local matched = false
       for k, v in string.gmatch(env.QUERY_STRING, "([^&=]+)=([^&=]+)") do
          params[k] = v
-         matched = true
       end
-      if matched then return params else return nil end
+      if params ~= {} then return params else return nil end
    else return nil end
 end
 
 function getAuthorization(env)
-   if env.HTTP_AUTHORIZATION ~= nil then
-      local auth = {}
-      for k in string.gmatch(env.HTTP_AUTHORIZATION,"%S+") do
-         table.insert(auth, k)
+   if env.HTTP_AUTHORIZATION ~= nil and env.HTTP_AUTHORIZATION ~= '' then
+      local authorization = {}
+      for k, v in string.gmatch(env.HTTP_AUTHORIZATION, "([^ ]+) ([^ ]+)") do
+         authorization[k] = v
       end
-      return auth
+      if authorization ~= {} then return authorization else return nil end
    else return nil end
 end
 
 function middlewareCheck(route, authorization)
-      local totalChecks = 0
-      local passedChecks = 0
+   local totalChecks = 0
+   local passedChecks = 0
 
-      for i, ware in ipairs(route.middleware) do
-         totalChecks = totalChecks + 1
-         local middlewareResponse
-         local status, error = pcall(function() middlewareResponse = middleware[ware](authorization) end)
-         if middlewareResponse and status then
-            passedChecks = passedChecks + 1
-         end
+   for i, ware in ipairs(route.middleware) do
+      totalChecks = totalChecks + 1
+      local middlewareResponse
+      local status, error = pcall(function() middlewareResponse = middleware[ware](authorization) end)
+      if middlewareResponse and status then
+         passedChecks = passedChecks + 1
       end
-      if totalChecks == passedChecks then return true else return false end
+   end
+
+   if totalChecks == passedChecks then return true else return false end
 end
 
 function handle_route(env, route)
-   local controller = require("/root/uhttpd/controllers/" .. route.handlerController)
+   local controller = require("./uhttpd/controllers/" .. route.handlerController)
    local method = route.handlerMethod
    local params = getParameters(env)
    local body = getBody(uhttpd, env)
@@ -86,17 +85,15 @@ function handle_route(env, route)
    local middlewareStatus = nil
    local response
 
-   -- checking if route has middleware
    if route.middleware ~= nil then
       middlewareStatus = middlewareCheck(route, authorization)
    end
 
-   -- if middleware not requested or user allowed to access this route
    if middlewareStatus == true or middlewareStatus == nil then
-      local status, error = pcall(function() response = controller[method](params, body) end)
+      local status, error = pcall(function() response = controller[method](params, body, authorization) end)
       if status then
          sendOk(uhttpd)
-         uhttpd.send(response)
+         uhttpd.send(json.encode(response))
          os.exit()
       else
          sendInternalError(uhttpd)
@@ -109,16 +106,12 @@ function handle_route(env, route)
 end
 
 function handle_request(env)
-   local exists = false
    for i, route in ipairs(routes) do
       if route.method == env.REQUEST_METHOD and route.path == env.PATH_INFO then
-         exists = true
          handle_route(env, route)
          os.exit()
       end
    end
-   if not exists then
-      sendNotFound(uhttpd)
-      os.exit()
-   end
+   sendNotFound(uhttpd)
+   os.exit()
 end
