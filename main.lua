@@ -1,31 +1,12 @@
 local routes = require "./uhttpd/routes"
 local middleware = require "./uhttpd/middleware"
+local responses = require "./uhttpd/responses"
 local json = require("cjson")
 
 function logPrint(text)
    io.stderr:write(string.format("\n"))
    io.stderr:write(string.format(text .. "\n"))
    io.stderr:write(string.format("\n"))
-end
-
-function sendOk(uhttpd)
-   uhttpd.send("Status: 200 OK\r\n")
-   uhttpd.send("Content-Type: application/json\r\n\r\n")
-end
-
-function sendInternalError(uhttpd)
-   uhttpd.send("Status: 500 Internal Server Error\r\n")
-   uhttpd.send("Content-Type: application/json\r\n\r\n")
-end
-
-function sendForbidden(uhttpd)
-   uhttpd.send("Status: 401 Forbidden\r\n")
-   uhttpd.send("Content-Type: application/json\r\n\r\n")
-end
-
-function sendNotFound(uhttpd)
-   uhttpd.send("Status: 404 Not Found\r\n")
-   uhttpd.send("Content-Type: application/json\r\n\r\n")
 end
 
 function getBody(uhttpd, env)
@@ -92,15 +73,15 @@ function handle_route(env, route)
    if middlewareStatus == true or middlewareStatus == nil then
       local status, error = pcall(function() response = controller[method](params, body, authorization) end)
       if status then
-         sendOk(uhttpd)
+         responses.sendOk(uhttpd)
          uhttpd.send(json.encode(response))
          os.exit()
       else
-         sendInternalError(uhttpd)
+         responses.sendInternalError(uhttpd)
          os.exit()
       end
    else
-      sendForbidden(uhttpd)
+      responses.sendForbidden(uhttpd)
       os.exit()
    end
 end
@@ -112,6 +93,6 @@ function handle_request(env)
          os.exit()
       end
    end
-   sendNotFound(uhttpd)
+   responses.sendNotFound(uhttpd)
    os.exit()
 end
