@@ -2,6 +2,7 @@ local json = require("cjson")
 local jwt = require "./uhttpd/luajwt"
 local base64 = require './uhttpd/base64'
 local env = require "./uhttpd/env"
+local validation = require "./uhttpd/validation"
 
 
 local AuthController = {}
@@ -24,6 +25,19 @@ end
 
 function AuthController.usersOnline(params)
     return { people = 20 }
+end
+
+function AuthController.test(params, body, authorization)
+
+    -- Available validations : required|max:255|min:100|email|
+    --      |contains:train|number|startsWith:train|endsWith:train|netmask|declined|accepted
+
+    local text = json.decode(body)["test"]
+    if validation.validate(text, "required|ipv4") then
+        return true
+    else
+        return false
+    end
 end
 
 return AuthController

@@ -9,11 +9,17 @@ routes = {
         path = "/usersOnline",
         method = "GET",
         handlerController = "AuthController",
-        handlerMethod = "usersOnline",
-        middleware = {
-            "checkIfTokenIsValid",
-        }
+        handlerMethod = "test",
     },
+    -- {
+    --     path = "/usersOnline",
+    --     method = "GET",
+    --     handlerController = "AuthController",
+    --     handlerMethod = "usersOnline",
+    --     middleware = {
+    --         "checkIfTokenIsValid",
+    --     }
+    -- },
 }
 
 return routes
