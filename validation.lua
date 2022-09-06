@@ -55,8 +55,11 @@ function validation.validate(text, validators)
         }
 
         local f
+        -- checking if the rule can be split into two parts (rule:arg)
+        -- if not then it is a simple rule without args
         if rule ~= nil and ruleArg ~= nil then f = switch[rule] else f = switch[validator]
             if (f) then f() else return false end
+            -- if a single rule did not pass the validation stop the validation
             if tv ~= pv then return false end
         end
     end
@@ -110,10 +113,11 @@ end
 
 function ipv4(text)
     local function isInRange(number)
-        if tonumber(number) > -1 and tonumber(number) < 257 then return true
+        if tonumber(number) > -1 and tonumber(number) < 256 then return true
         else return false end
     end
 
+    -- if text matches the ipv4 format and each part is in valid ipv4 range
     if string.match(text, '^(%d%d?%d?)%.(%d%d?%d?)%.(%d%d?%d?)%.(%d%d?%d?)$') then
         local a, b, c, d = string.match(text, "([^.]+).([^.]+).([^.]+).([^.]+)")
         if isInRange(a) and isInRange(b) and isInRange(c) and isInRange(d) then return true
