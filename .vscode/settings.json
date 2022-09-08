@@ -1,8 +1,5 @@
 {
-    "Lua.diagnostics.globals": [
-        "uhttpd"
-    ],
     "Lua.diagnostics.disable": [
-        "lowercase-global"
+        "undefined-global"
     ]
 }
