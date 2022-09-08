@@ -1,8 +1,8 @@
 local json = require("cjson")
-local jwt = require "./uhttpd/luajwt"
-local base64 = require './uhttpd/base64'
+local jwt = require "./uhttpd/libs/luajwt"
+local base64 = require './uhttpd/libs/base64'
 local env = require "./uhttpd/env"
-local validation = require "./uhttpd/validation"
+local validation = require "./uhttpd/libs/validation"
 
 
 local AuthController = {}
@@ -33,7 +33,7 @@ function AuthController.test(params, body, authorization)
     --      |contains:train|number|startsWith:train|endsWith:train|netmask|declined|accepted
 
     local text = json.decode(body)["test"]
-    if validation.validate(text, "required|ipv4") then
+    if validation.validate(text, "required|max:2") then
         return true
     else
         return false

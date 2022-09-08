@@ -1,6 +1,6 @@
 local routes = require "./uhttpd/routes"
 local middleware = require "./uhttpd/middleware"
-local responses = require "./uhttpd/responses"
+local responses = require "./uhttpd/libs/responses"
 local json = require("cjson")
 
 function logPrint(text)

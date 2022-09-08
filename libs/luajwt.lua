@@ -1,5 +1,5 @@
 local cjson  = require 'cjson'
-local base64 = require './uhttpd/base64'
+local base64 = require './uhttpd/libs/base64'
 local hmac   = require 'openssl'.hmac
 
 

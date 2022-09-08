@@ -1,5 +1,5 @@
 local json = require("cjson")
-local jwt = require "./uhttpd/luajwt"
+local jwt = require "./uhttpd/libs/luajwt"
 local env = require "./uhttpd/env"
 
 local middleware = {}
