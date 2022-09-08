@@ -1,7 +1,8 @@
 local json = require("cjson")
 local uci = require("uci").cursor()
 
--- io.open("/etc/config/test", "w"):close()
+
+
 
 --typed section
 -- config interface
@@ -59,24 +60,39 @@ local data2 = {
 }
 
 function addTyped(configFile, sectionName, data)
-    uci:add(configFile, sectionName)
-    for i, sample in ipairs(data) do
-        if sample.type == "option" or sample.type == "list" then
-            uci:set(configFile, "@" .. sectionName .. "[-1]", sample.option, sample.value)
-        else
-            uci:revert(configFile)
-            return false
+    if uci:add(configFile, sectionName) then
+        for i, sample in ipairs(data) do
+            if not uci:set(configFile, "@" .. sectionName .. "[-1]", sample.option, sample.value) then
+                uci:revert(configFile)
+                return false
+            end
         end
+        return uci:commit(configFile)
+    else
+        uci:revert(configFile)
+        return false
     end
-    return uci:commit(configFile)
+
 end
 
 function addNamed(configFile, sectionName, sectionTitle, data)
-    uci:set(configFile, sectionTitle, sectionName)
+    if uci:set(configFile, sectionTitle, sectionName) then
+        for i, sample in ipairs(data) do
+            if not uci:set(configFile, "@" .. sectionName .. "[-1]", sample.option, sample.value) then
+                uci:revert(configFile)
+                return false
+            end
+        end
+        return uci:commit(configFile)
+    else
+        uci:revert(configFile)
+        return false
+    end
+end
+
+function addOption(configFile, sidOrSectionTitle, data)
     for i, sample in ipairs(data) do
-        if sample.type == "option" or sample.type == "list" then
-            uci:set(configFile, "@" .. sectionName .. "[-1]", sample.option, sample.value)
-        else
+        if not uci:set(configFile, sidOrSectionTitle, sample.option, sample.value) then
             uci:revert(configFile)
             return false
         end
@@ -85,48 +101,51 @@ function addNamed(configFile, sectionName, sectionTitle, data)
 end
 
 function deleteSection(configFile, sidOrSectionTitle)
-    uci:delete(configFile, sidOrSectionTitle)
-    return uci:commit(configFile)
-end
-
-function addOption(configFile, sidOrSectionTitle, data)
-    for i, sample in ipairs(data) do
-        if sample.type == "option" or sample.type == "list" then
-            uci:set(configFile, sidOrSectionTitle, sample.option, sample.value)
-        else
-            uci:revert(configFile)
-            return false
-        end
+    if uci:delete(configFile, sidOrSectionTitle) then
+        return uci:commit(configFile)
+    else
+        uci:revert(configFile)
+        return false
     end
-    return uci:commit(configFile)
 end
 
 function removeOption(configFile, sidOrSectionTitle, optionName)
-    uci:delete(configFile, sidOrSectionTitle, optionName)
-    return uci:commit(configFile)
+    if uci:delete(configFile, sidOrSectionTitle, optionName) then
+        return uci:commit(configFile)
+    else
+        uci:revert(configFile)
+        return false
+    end
 end
 
 function reorder(configFile, sidOrSectionTitle, position)
-    uci:reorder(configFile, sidOrSectionTitle, position)
-    return uci:commit(configFile)
+    if (uci:reorder(configFile, sidOrSectionTitle, position)) then
+        return uci:commit(configFile)
+    else
+        uci:revert(configFile)
+        return false
+    end
 end
+
+
+io.open("/etc/config/test", "w"):close()
 
 for i = 1, 20, 1 do
     print()
 end
 
--- addTyped("test", "wireguard", data)
--- addNamed("test", "wireguard", "aaaaaaaaa", data)
+addTyped("test", "wireguard", data)
+addNamed("test", "wireguard", "aaaaaaaaa", data)
 
 
-uci:foreach("test", "wireguard", function(s)
-    print('------------------')
-    for key, value in pairs(s) do
-        if key == ".name" then
-            print(value)
-        end
-    end
-end)
+-- uci:foreach("test", "wireguard", function(s)
+--     print('------------------')
+--     for key, value in pairs(s) do
+--         if key == ".name" then
+--             print(value)
+--         end
+--     end
+-- end)
 
 -- removeOption("test","cfg0127cf","proto")
 -- removeOption("test","aaaaaaaaa","proto")
