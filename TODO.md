@@ -20,6 +20,9 @@ logread -f
 
 
 
+
+
+
 local json = require("cjson")
 local uci = require("uci").cursor()
 
