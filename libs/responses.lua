@@ -2,7 +2,8 @@ local responses = {}
 
 function responses.sendOk(uhttpd)
     uhttpd.send("Status: 200 OK\r\n")
-    uhttpd.send("Content-Type: application/json\r\n\r\n")
+    -- uhttpd.send("Content-Type: application/json\r\n\r\n")
+    uhttpd.send("Content-Type: application/json\r\n\r\n") 
 end
 
 function responses.sendInternalError(uhttpd)

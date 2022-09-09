@@ -4,7 +4,6 @@
     sshpass -p admin01 rsync -avz /home/studentas/Documents/uhttpd root@192.168.1.1:/root/ --delete
 done -->
 
-
 while inotifywait -r -e modify,create,delete,move ./uhttpd; do
     sshpass -p admin01 rsync -avz /home/studentas/Documents/uhttpd root@192.168.1.1:/usr/lib/lua/ --delete
 done

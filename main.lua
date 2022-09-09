@@ -12,7 +12,7 @@ end
 function getBody(uhttpd, env)
    local len = tonumber(env.CONTENT_LENGTH) or 0
    if len > 0 then
-      local rlen, rbuf = uhttpd.recv(4096)
+      local rlen, rbuf = uhttpd.recv(len)
       if rlen >= 0 then
          len = len - rlen
          return rbuf
@@ -63,6 +63,7 @@ function handle_route(env, route)
    local params = getParameters(env)
    local body = getBody(uhttpd, env)
    local authorization = getAuthorization(env)
+   local contentType = env.CONTENT_TYPE
    local middlewareStatus = nil
    local response
 
@@ -71,7 +72,7 @@ function handle_route(env, route)
    end
 
    if middlewareStatus == true or middlewareStatus == nil then
-      local status, error = pcall(function() response = controller[method](params, body, authorization) end)
+      local status, error = pcall(function() response = controller[method](params, body, authorization, contentType) end)
       if status then
          responses.sendOk(uhttpd)
          uhttpd.send(json.encode(response))

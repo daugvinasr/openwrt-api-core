@@ -3,11 +3,12 @@ local jwt = require "./uhttpd/libs/luajwt"
 local base64 = require './uhttpd/libs/base64'
 local env = require "./uhttpd/env"
 local validation = require "./uhttpd/libs/validation"
+local multipart = require "./uhttpd/libs/multipart"
 
 
-local AuthController = {}
+local MainController = {}
 
-function AuthController.login(params, body, authorization)
+function MainController.login(params, body, authorization, contentType)
     if authorization["Basic"] ~= nil then
         local payload = { iss = "petras", nbf = os.time(), exp = os.time() + 3600 }
         local decoded = base64.decode(authorization["Basic"])
@@ -23,21 +24,36 @@ function AuthController.login(params, body, authorization)
     end
 end
 
-function AuthController.usersOnline(params)
+function MainController.usersOnline(params, body, authorization, contentType)
     return { people = 20 }
 end
 
-function AuthController.test(params, body, authorization)
-
+function MainController.validation(params, body, authorization, contentType)
     -- Available validations : required|max:255|min:100|email|
     --      |contains:train|number|startsWith:train|endsWith:train|netmask|declined|accepted
-
     local text = json.decode(body)["test"]
     if validation.validate(text, "required|max:2") then
-        return true
+        return { ok = "validation passed" }
     else
-        return false
+        return { error = "validation failed" }
     end
 end
 
-return AuthController
+function MainController.fileUpload(params, body, authorization, contentType)
+    local multipart_data = multipart(body, contentType)
+
+    local data = multipart_data["_data"]["data"][1]["value"]
+    local headers = multipart_data["_data"]["data"][1]["headers"][1]
+    local filename = string.match(headers, "filename=\"([^\"]+)\"")
+
+    local file = io.open("/etc/uploads/"..filename, "w+")
+    if file ~= nil then
+        file:write(data)
+        file:close()
+        return { ok = "file uploaded successfully" }
+    else
+        return { error = "file could not be written to the system" }
+    end
+end
+
+return MainController
