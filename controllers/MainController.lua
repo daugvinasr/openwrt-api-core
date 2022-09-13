@@ -10,17 +10,18 @@ local MainController = {}
 
 function MainController.login(params, body, authorization, contentType)
     if authorization["Basic"] ~= nil then
-        local payload = { iss = "petras", nbf = os.time(), exp = os.time() + 3600 }
         local decoded = base64.decode(authorization["Basic"])
         local username, password = string.match(decoded, "([^:]+):([^:]+)")
-        if username == "petras" and password == "petras" then
-            local token, err = jwt.encode(payload, env.jwtKey, "HS256")
-            return { token = token }
-        else
-            return { error = "Incorrect log in details provided" }
+        for _, value in ipairs(env.logins) do
+            if username == value.username and password == value.password then
+                local payload = { iss = { rules = value.rules }, nbf = os.time(), exp = os.time() + 3600 }
+                local token, err = jwt.encode(payload, env.jwtKey, "HS256")
+                return { token = token }
+            end
         end
+        return { error = "incorrect log in details provided" }
     else
-        return { error = "Wrong type of authorization chosen for the log in" }
+        return { error = "wrong type of authorization chosen for the log in" }
     end
 end
 
@@ -40,19 +41,24 @@ function MainController.validation(params, body, authorization, contentType)
 end
 
 function MainController.fileUpload(params, body, authorization, contentType)
-    local multipart_data = multipart(body, contentType)
+    local match = "multipart/form-data; boundary=-----"
+    if not string.match(contentType, '^' .. match) then
+        local multipart_data = multipart(body, contentType)
+        logPrint(contentType)
+        local data = multipart_data["_data"]["data"][1]["value"]
+        local headers = multipart_data["_data"]["data"][1]["headers"][1]
+        local filename = string.match(headers, "filename=\"([^\"]+)\"")
 
-    local data = multipart_data["_data"]["data"][1]["value"]
-    local headers = multipart_data["_data"]["data"][1]["headers"][1]
-    local filename = string.match(headers, "filename=\"([^\"]+)\"")
-
-    local file = io.open("/etc/uploads/"..filename, "w+")
-    if file ~= nil then
-        file:write(data)
-        file:close()
-        return { ok = "file uploaded successfully" }
+        local file = io.open("/etc/uploads/" .. filename, "w+")
+        if file ~= nil then
+            file:write(data)
+            file:close()
+            return { ok = "file uploaded successfully" }
+        else
+            return { error = "file could not be written to the system" }
+        end
     else
-        return { error = "file could not be written to the system" }
+        return { error = "wrong content type" }
     end
 end
 

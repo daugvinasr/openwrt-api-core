@@ -6,26 +6,29 @@ routes = {
         handlerMethod = "login",
     },
     {
-        path = "/usersOnline",
-        method = "GET",
-        handlerController = "MainController",
-        handlerMethod = "test",
-    },
-    {
         path = "/fileUpload",
         method = "POST",
         handlerController = "MainController",
         handlerMethod = "fileUpload",
     },
-    -- {
-    --     path = "/usersOnline",
-    --     method = "GET",
-    --     handlerController = "MainController",
-    --     handlerMethod = "usersOnline",
-    --     middleware = {
-    --         "checkIfTokenIsValid",
-    --     }
-    -- },
+    {
+        path = "/usersOnline",
+        method = "GET",
+        handlerController = "MainController",
+        handlerMethod = "usersOnline",
+        middleware = {
+            "checkRoleSpecificRules",
+        }
+    },
+    {
+        path = "/usersOnline",
+        method = "POST",
+        handlerController = "MainController",
+        handlerMethod = "usersOnline",
+        middleware = {
+            "checkRoleSpecificRules",
+        }
+    }
 }
 
 return routes

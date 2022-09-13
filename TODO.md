@@ -1,5 +1,15 @@
 ## uhttpd
 
+
+Pirma užduotis - route'ams reikia padaryti, kad kiekvienam vartotojui būtų galima sudaryti teises, kokius route'us jie gali naudoti arba negali
+Pvz. bus sukurtas naujas user'is ir norime, kad jis tik galėtų naudoti get route'us, post route'ų negalėtų naudoti
+
+
+
+
+
+
+
 <!-- while inotifywait -r -e modify,create,delete,move ./uhttpd; do
     sshpass -p admin01 rsync -avz /home/studentas/Documents/uhttpd root@192.168.1.1:/root/ --delete
 done -->

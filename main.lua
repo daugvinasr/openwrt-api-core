@@ -48,7 +48,7 @@ function middlewareCheck(route, authorization)
    for i, ware in ipairs(route.middleware) do
       totalChecks = totalChecks + 1
       local middlewareResponse
-      local status, error = pcall(function() middlewareResponse = middleware[ware](authorization) end)
+      local status, error = pcall(function() middlewareResponse = middleware[ware](authorization, route) end)
       if middlewareResponse and status then
          passedChecks = passedChecks + 1
       end
