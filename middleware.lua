@@ -18,25 +18,19 @@ function middleware.checkIfTokenIsValid(authorization)
     end
 end
 
-function middleware.checkRoleSpecificRules(authorization, route)
-
-    local function checkDisallowedMethods(decoded, route)
-        for index, value in ipairs(decoded.iss.rules.disallowedMethods) do
-            if value == route.method then
-                return false
-            end
-        end
-        return true
-    end
-
+function middleware.checkUserSpecificRules(authorization, route)
     if authorization["Bearer"] ~= nil then
         local token = authorization["Bearer"]
         local decoded, err = jwt.decode(token, env.jwtKey, true)
-        -- this is where you can add your own rules that need to be checked
-        if decoded ~= nil and checkDisallowedMethods(decoded, route) then
+        if decoded.iss.rules ~= nil then
+            for rule in string.gmatch(decoded.iss.rules, '([^|]+)') do
+                if rule == "no" .. route.method then
+                    return false
+                end
+            end
             return true
         else
-            return false
+            return true
         end
     else
         return false

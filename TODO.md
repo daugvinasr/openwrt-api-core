@@ -1,13 +1,16 @@
 ## uhttpd
 
-
-Pirma užduotis - route'ams reikia padaryti, kad kiekvienam vartotojui būtų galima sudaryti teises, kokius route'us jie gali naudoti arba negali
+1.
+route'ams reikia padaryti, kad kiekvienam vartotojui būtų galima sudaryti teises, kokius route'us jie gali naudoti arba negali
 Pvz. bus sukurtas naujas user'is ir norime, kad jis tik galėtų naudoti get route'us, post route'ų negalėtų naudoti
 
-
-
-
-
+2.
+Jeigu tą užduotį pasibaigsi, tada dar vieną užduotį gali daryti
+Reiktų padaryti sertifikatų generavimą
+TLS sertifikatų
+Blogiausiau atveju įsirašyk iš wiki FW ir nueik į System -> Adminsitration -> Certificates
+Ir per ten bus galima generuoti sertifikatus
+Tokio funkcionalumo dar reiktų pridėti
 
 
 <!-- while inotifywait -r -e modify,create,delete,move ./uhttpd; do

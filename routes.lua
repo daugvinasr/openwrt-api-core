@@ -17,7 +17,7 @@ routes = {
         handlerController = "MainController",
         handlerMethod = "usersOnline",
         middleware = {
-            "checkRoleSpecificRules",
+            "checkUserSpecificRules",
         }
     },
     {
@@ -26,7 +26,7 @@ routes = {
         handlerController = "MainController",
         handlerMethod = "usersOnline",
         middleware = {
-            "checkRoleSpecificRules",
+            "checkUserSpecificRules",
         }
     }
 }
