@@ -11,7 +11,8 @@ TLS sertifikatų
 Blogiausiau atveju įsirašyk iš wiki FW ir nueik į System -> Adminsitration -> Certificates
 Ir per ten bus galima generuoti sertifikatus
 Tokio funkcionalumo dar reiktų pridėti
-
+ 
+ 
 
 <!-- while inotifywait -r -e modify,create,delete,move ./uhttpd; do
     sshpass -p admin01 rsync -avz /home/studentas/Documents/uhttpd root@192.168.1.1:/root/ --delete
