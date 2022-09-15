@@ -211,3 +211,65 @@ local json = require("cjson")
 
 -- print(io.open("/etc/config/test", "rb"):read "*a");
 
+
+
+
+
+-- local OPENSSL_CMD = "/usr/bin/openssl"
+-- local OPENSSL_CNF = "/etc/ssl/openssl.cnf"
+-- local DIRECTORY = "/etc/certificates"
+-- local LOG_FILE = "/tmp/certificates-status"
+-- local STATUS_DIR = DIRECTORY.."/status"
+-- local STATUS_FILE = STATUS_DIR.."/info"
+-- local DEF_SUBJECT = "/C=''/ST=''/L=''/O=''/OU=''"
+
+-- local defaults = {
+-- 	KEY_SIZE = "2048",
+-- 	SIGN 	 = false,
+-- 	DELETE   = false,
+-- 	CA 		 = "",
+-- 	CA_KEY   = "",
+-- 	REQUEST_FILE = "",
+-- 	DAYS	 = 3650,
+-- 	SUBJECT  = DEF_SUBJECT
+-- }
+
+-- local DIRECTORY = "/home/studentas/Documents/uhttpd/certs"
+
+-- defaults.SIGN = true
+-- defaults.DELETE = true
+-- defaults.CA = "ca.cert.pem"
+-- defaults.CA_KEY = "ca.key.pem"
+
+-- defaults.COMMON_NAME = "ca"
+-- defaults.FILE_NAME = 'ca'
+-- defaults.TYPE = "ca"
+-- defaults.SUBJECT = DEF_SUBJECT.."/CN=ca"
+
+-- function shellquote(value)
+-- 	return string.format("'%s'", string.gsub(value or "", "'", "'\\''"))
+-- end
+
+-- function generate_ca()
+-- 	local key_file = DIRECTORY.."/"..defaults.FILE_NAME..".key.pem"
+-- 	local req_file = DIRECTORY.."/"..defaults.FILE_NAME..".req.pem"
+-- 	local ret = os.execute(string.format(
+-- 		OPENSSL_CMD .. " req -config %s -nodes -subj %s -keyout %s -newkey %s -new -out %s",
+-- 		OPENSSL_CNF, shellquote(defaults.SUBJECT), shellquote(key_file),
+-- 		shellquote("rsa:"..defaults.KEY_SIZE), shellquote(req_file)
+-- 	))
+-- 	-- print("remove:"..defaults.FILE_NAME .. " ".. LOG_FILE)
+-- 	-- remove_json(defaults.FILE_NAME, LOG_FILE, 'key')
+-- 	-- if ret == 0 then print_to_info('key') end
+
+-- 	-- if defaults.SIGN == true then
+-- 	-- 	defaults.REQUEST_FILE = defaults.FILE_NAME .. ".req.pem"
+-- 	-- 	defaults.KEY_FILE = defaults.FILE_NAME .. ".key.pem"
+-- 	-- 	sign_ca()
+-- 	-- end
+-- 	-- return ret
+-- end
+
+-- generate_ca()
+
+
