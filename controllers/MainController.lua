@@ -44,7 +44,6 @@ function MainController.fileUpload(params, body, authorization, contentType)
     local match = "multipart/form-data; boundary=-----"
     if not string.match(contentType, '^' .. match) then
         local multipart_data = multipart(body, contentType)
-        logPrint(contentType)
         local data = multipart_data["_data"]["data"][1]["value"]
         local headers = multipart_data["_data"]["data"][1]["headers"][1]
         local filename = string.match(headers, "filename=\"([^\"]+)\"")
@@ -94,7 +93,6 @@ function MainController.availableCerts(params, body, authorization, contentType)
     else
         return { error = "could not find any compatible files" }
     end
-
 end
 
 return MainController

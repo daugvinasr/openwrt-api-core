@@ -68,16 +68,12 @@ function generate_client_server(subject, directory, name)
 
 end
 
-local dh = openssl.dh
-function generate_dh()
-    local p = dh.generate_parameters(1024)
-    local k = p:generate_key()
-    local temp = k:parse()
+-- -----BEGIN DH PARAMETERS-----
+-- MEYCQQCs8i8641u/28IHbqJ6W4q+gRDSPFQBkdvQrs4XqwuiTCDpiOse0M76eVqy
+-- Kc4o/GT/7ovNF2LTRkpKV4EtCDQzAgEC
+-- -----END DH PARAMETERS-----
 
-    for index, value in ipairs(temp) do
-        print(value)
-    end
-end
+
 
 local ca = { { C = 'LT' }, { CN = 'ca' } };
 local client = { { C = 'LT' }, { CN = 'client' } };
@@ -87,4 +83,3 @@ local server = { { C = 'LT' }, { CN = 'server' } };
 -- generate_client_server(client, directory, "client")
 -- generate_client_server(server, directory, "server")
 -- print(json.encode(getData(directory)))
-generate_dh()
