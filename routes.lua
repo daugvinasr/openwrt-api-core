@@ -1,5 +1,17 @@
 routes = {
     {
+        path = "/generateCerts",
+        method = "GET",
+        handlerController = "MainController",
+        handlerMethod = "generateCerts",
+    },
+    {
+        path = "/availableCerts",
+        method = "GET",
+        handlerController = "MainController",
+        handlerMethod = "availableCerts",
+    },
+    {
         path = "/login",
         method = "POST",
         handlerController = "MainController",

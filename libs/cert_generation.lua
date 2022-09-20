@@ -1,7 +1,6 @@
-local json      = require 'cjson'
-local openssl   = require 'openssl'
-local csr       = require 'openssl'.x509.req
-local directory = "/home/studentas/Documents/uhttpd/certs"
+local openssl = require 'openssl'
+local csr = require 'openssl'.x509.req
+local env = require "./uhttpd/env"
 
 function write_file(file, data)
     local file = io.open(file, "w+")
@@ -68,23 +67,10 @@ function generate_client_server(subject, directory, name)
 
 end
 
-local dh = openssl.dh
-function generate_dh()
-    local p = dh.generate_parameters(1024)
-    local k = p:generate_key()
-    local temp = k:parse()
-
-    for index, value in ipairs(temp) do
-        print(value)
-    end
-end
-
 local ca = { { C = 'LT' }, { CN = 'ca' } };
 local client = { { C = 'LT' }, { CN = 'client' } };
 local server = { { C = 'LT' }, { CN = 'server' } };
 
--- generate_ca(ca, directory)
--- generate_client_server(client, directory, "client")
--- generate_client_server(server, directory, "server")
--- print(json.encode(getData(directory)))
-generate_dh()
+generate_ca(ca, env.certLocation)
+generate_client_server(client, env.certLocation, "client")
+generate_client_server(server, env.certLocation, "server")

@@ -72,6 +72,7 @@ function handle_route(env, route)
    end
 
    if middlewareStatus == true or middlewareStatus == nil then
+      -- controller[method](params, body, authorization, contentType) 
       local status, error = pcall(function() response = controller[method](params, body, authorization, contentType) end)
       if status then
          responses.sendOk(uhttpd)

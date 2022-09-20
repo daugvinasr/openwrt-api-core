@@ -4,7 +4,7 @@ local base64 = require './uhttpd/libs/base64'
 local env = require "./uhttpd/env"
 local validation = require "./uhttpd/libs/validation"
 local multipart = require "./uhttpd/libs/multipart"
-
+local cert_info = require "./uhttpd/libs/cert_info"
 
 local MainController = {}
 
@@ -60,6 +60,41 @@ function MainController.fileUpload(params, body, authorization, contentType)
     else
         return { error = "wrong content type" }
     end
+end
+
+function MainController.generateCerts(params, body, authorization, contentType)
+
+    io.popen("lua /usr/lib/lua/uhttpd/libs/cert_generation.lua")
+
+    return { ok = "generating certs in progress" }
+end
+
+function MainController.availableCerts(params, body, authorization, contentType)
+
+    local dataCert = {}
+    local dataReq = {}
+    local dataKey = {}
+
+    local p = io.popen('find "' .. env.certLocation .. '" -type f')
+
+    if p ~= nil then
+        for file in p:lines() do
+            local temp = cert_info.getCertInfo(file)
+            if temp ~= nil then
+                if temp.fileType == "cert" then
+                    table.insert(dataCert, temp)
+                elseif temp.fileType == "req" then
+                    table.insert(dataReq, temp)
+                elseif temp.fileType == "key" then
+                    table.insert(dataKey, temp)
+                end
+            end
+        end
+        return { certs = dataCert, reqs = dataReq, keys = dataKey }
+    else
+        return { error = "could not find any compatible files" }
+    end
+
 end
 
 return MainController
