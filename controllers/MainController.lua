@@ -19,7 +19,7 @@ function MainController.login(params, body, authorization, contentType)
         local username, password = string.match(decoded, "([^:]+):([^:]+)")
         for _, value in ipairs(env.logins) do
             if username == value.username and password == value.password then
-                local payload = { iss = { rules = value.rules }, nbf = os.time(), exp = os.time() + 3600 }
+                local payload = { iss = { username = value.username }, nbf = os.time(), exp = os.time() + 3600 }
                 local token, err = jwt.encode(payload, env.jwtKey, "HS256")
                 return { token = token }
             end
