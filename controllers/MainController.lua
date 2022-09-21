@@ -5,6 +5,11 @@ local env = require "./uhttpd/env"
 local validation = require "./uhttpd/libs/validation"
 local multipart = require "./uhttpd/libs/multipart"
 local cert_info = require "./uhttpd/libs/cert_info"
+local cert_generation = "lua /usr/lib/lua/uhttpd/libs/cert_generation.lua"
+
+function shellquote(value)
+    return string.format("'%s'", string.gsub(value or "", "'", "'\\''"))
+end
 
 local MainController = {}
 
@@ -61,13 +66,6 @@ function MainController.fileUpload(params, body, authorization, contentType)
     end
 end
 
-function MainController.generateCerts(params, body, authorization, contentType)
-
-    io.popen("lua /usr/lib/lua/uhttpd/libs/cert_generation.lua")
-
-    return { ok = "generating certs in progress" }
-end
-
 function MainController.availableCerts(params, body, authorization, contentType)
 
     local dataCert = {}
@@ -94,5 +92,54 @@ function MainController.availableCerts(params, body, authorization, contentType)
         return { error = "could not find any compatible files" }
     end
 end
+
+function MainController.generateCA(params, body, authorization, contentType)
+
+    local data = json.decode(body)
+
+    os.execute(string.format(
+        cert_generation .. " --fileType %s --keySize %s --cn %s",
+        shellquote(data["fileType"]),
+        shellquote(data["keySize"]),
+        shellquote(data["cn"])
+    ))
+
+    return { ok = "CA generation is in progress" }
+
+end
+
+function MainController.generateClientServer(params, body, authorization, contentType)
+
+    local data = json.decode(body)
+
+    os.execute(string.format(
+        cert_generation .. " --fileType %s --keySize %s --cn %s --caFileName %s --daysValid %s",
+        shellquote(data["fileType"]),
+        shellquote(data["keySize"]),
+        shellquote(data["cn"]),
+        shellquote(data["caFileName"]),
+        shellquote(data["daysValid"])
+    ))
+
+    return { ok = "Certificate generation is in progress" }
+
+end
+
+function MainController.generateClientServerNotSigned(params, body, authorization, contentType)
+
+    local data = json.decode(body)
+
+    os.execute(string.format(
+        cert_generation .. " --fileType %s --keySize %s --cn %s",
+        shellquote(data["fileType"]),
+        shellquote(data["keySize"]),
+        shellquote(data["cn"])
+    ))
+
+    return { ok = "Certificate generation is in progress" }
+
+end
+
+
 
 return MainController

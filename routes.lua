@@ -1,9 +1,21 @@
 routes = {
     {
-        path = "/generateCerts",
-        method = "GET",
+        path = "/generateCA",
+        method = "POST",
         handlerController = "MainController",
-        handlerMethod = "generateCerts",
+        handlerMethod = "generateCA",
+    },
+    {
+        path = "/generateClientServer",
+        method = "POST",
+        handlerController = "MainController",
+        handlerMethod = "generateClientServer",
+    },
+    {
+        path = "/generateClientServerNotSigned",
+        method = "POST",
+        handlerController = "MainController",
+        handlerMethod = "generateClientServerNotSigned",
     },
     {
         path = "/availableCerts",

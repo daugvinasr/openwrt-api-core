@@ -1,9 +1,8 @@
 local openssl = require 'openssl'
 local csr = require 'openssl'.x509.req
 local argparse = require("argparse")
--- local env = require "./uhttpd/env"
-local env = require "env"
-
+local env = require "./uhttpd/env"
+-- local env = require "env"
 
 function write_file(file, data)
     local file = io.open(file, "w+")
@@ -52,7 +51,7 @@ function generate_client_server(subject, directory, name, caName, keySize, daysV
 
             local pkey = openssl.pkey.new("rsa", keySize)
             write_file(key_file, pkey:export())
-    
+
             local req = csr.new(subjectFull, pkey)
             write_file(req_file, req:export())
 
@@ -65,7 +64,7 @@ function generate_client_server(subject, directory, name, caName, keySize, daysV
             caCert = openssl.x509.read(caCertData)
 
             local cert = openssl.x509.new(req)
-            cert:validat(os.time(), os.time() + 3600 * 24 * 365)
+            cert:validat(os.time(), os.time() + 3600 * 24 * daysValid)
             cert:sign(caKey, caCert)
             write_file(cert_file, cert:export())
         else
@@ -86,7 +85,7 @@ local parser = argparse()
 parser:option("--fileType", "Type of file to be generated: server, client, ca"):argname("<string>")
 parser:option("--keySize", "Certificate key size"):argname("<int>")
 parser:option("--cn", "Common name and file name of the certificate"):argname("<string>")
-parser:option("--caFileName", "Certificate authority file (Used for signing client and server certificates)"):argname("<file>")
+parser:option("--caFileName", "Certificate authority file and key name (Used for signing client and server certificates)"):argname("<file>")
 parser:option("--daysValid", "Days until certificate expires"):argname("<int>")
 
 parser:option("--c", "Country Code"):argname("<string>")
@@ -94,9 +93,6 @@ parser:option("--st", "State or Province Name"):argname("<string>")
 parser:option("--l", "Locality Name"):argname("<string>")
 parser:option("--o", "Organization Name"):argname("<string>")
 parser:option("--ou", "Organizational Unit Name"):argname("<string>")
-
-parser:flag("--sign", "Sign the generated certificate with CA file, requires --caFileName")
-
 
 local args = parser:parse()
 
@@ -109,30 +105,29 @@ if args.o then table.insert(info, { O = args.o }) end
 if args.ou then table.insert(info, { OU = args.ou }) end
 
 
-if args.fileType == 'client' or args.fileType == 'server' and args.keySize and args.cn then
+if (args.fileType == 'client' or args.fileType == 'server')
+    and args.keySize and args.cn and args.daysValid and args.caFileName then
 
-    if args.sign == true and args.caFileName ~= nil and args.daysValid ~= nil then
-        generate_client_server(info, env.certLocation, args.cn, args.caFileName, args.keySize, args.daysValid)
-        os.exit()
-    end
+    -- generate signed certificate
+    generate_client_server(info, env.certLocation, args.cn, args.caFileName, args.keySize, args.daysValid)
 
-    if args.sign == nil and args.caFileName == nil and args.daysValid == nil then
-        generate_client_server(info, env.certLocation, args.cn, false, args.keySize, false)
-        os.exit()
-    end
+elseif (args.fileType == 'client' or args.fileType == 'server')
+    and args.keySize and args.cn and args.daysValid == nil and args.caFileName == nil then
 
-    print("Wrong or missing arguments")
-    os.exit()
+    -- generate NOT signed certificate
+    generate_client_server(info, env.certLocation, args.cn, false, args.keySize, false)
 
 elseif args.fileType == 'ca' and args.keySize and args.cn then
-    generate_ca(info, env.certLocation, args.cn)
+
+    -- generate CA
+    generate_ca(info, env.certLocation, args.cn, args.keySize)
 else
-    print("Wrong or missing arguments")
-    os.exit()
+    print("Invalid arguments")
 end
 
 
+
 -- lua cert_generation.lua --fileType ca --keySize 512 --cn ca --c LT --st a --l a --o a --ou a
--- lua cert_generation.lua --fileType ca --keySize 512 --cn ca 
--- lua cert_generation.lua --fileType client --keySize 512 --cn client --caFileName ca
--- lua cert_generation.lua --fileType server --keySize 512 --cn server --caFileName ca
+-- lua cert_generation.lua --fileType ca --keySize 512 --cn ca
+-- lua cert_generation.lua --fileType client --keySize 512 --cn client --caFileName ca --daysValid 365
+-- lua cert_generation.lua --fileType server --keySize 512 --cn server --caFileName ca --daysValid 365

@@ -1,6 +1,6 @@
 local openssl = require 'openssl'
 local env = require "./uhttpd/env"
-
+local json = require("cjson")
 
 local certs = {}
 
@@ -9,6 +9,15 @@ function certs.getCertInfo(filePath)
     if file ~= nil then
         local fileRawContent = file:read("*all")
         file:close()
+
+        function findCN(contentObjName)
+            for index, value in ipairs(contentObjName:info()) do
+                if value["CN"] ~= nil then
+                    return value["CN"]
+                end
+            end
+            return "CN not found"
+        end
 
         if string.match(filePath, ".cert.pem" .. '$') then
 
@@ -19,8 +28,7 @@ function certs.getCertInfo(filePath)
                 fileName = string.sub(filePath, string.len(env.certLocation) + 2),
                 filePath = filePath,
                 fileType = "cert",
-                country = contentObjName:info()[1]['C'],
-                commonName = contentObjName:info()[2]['CN'],
+                commonName = findCN(contentObjName),
                 notbefore = contentObj:notbefore():get(),
                 notafter = contentObj:notafter():get(),
                 keyLength = contentObj:pubkey():bits()
@@ -35,8 +43,7 @@ function certs.getCertInfo(filePath)
                 fileName = string.sub(filePath, string.len(env.certLocation) + 2),
                 filePath = filePath,
                 fileType = "req",
-                country = contentObjName:info()[1]['C'],
-                commonName = contentObjName:info()[2]['CN'],
+                commonName = findCN(contentObjName),
                 notbefore = nil,
                 notafter = nil,
                 keyLength = contentObj:public():bits()
@@ -48,7 +55,6 @@ function certs.getCertInfo(filePath)
                 fileName = string.sub(filePath, string.len(env.certLocation) + 2),
                 filePath = filePath,
                 fileType = "key",
-                country = nil,
                 commonName = nil,
                 notbefore = nil,
                 notafter = nil,
