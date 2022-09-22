@@ -2,6 +2,7 @@ local openssl = require 'openssl'
 local csr = require 'openssl'.x509.req
 local argparse = require("argparse")
 local env = require "./uhttpd/env"
+local dh = require "gen_dh_lua"
 -- local env = require "env"
 
 function write_file(file, data)
@@ -80,9 +81,18 @@ function generate_client_server(subject, directory, name, caName, keySize, daysV
     end
 end
 
+function generate_dh(directory, name, keySize)
+    local path = directory .. "/" .. name .. ".dh.pem"
+    local response = dh.gen_dh_file(keySize, path)
+    if response ~= 0 then
+        print("Error generating DH file")
+        os.exit()
+    end
+end
+
 local parser = argparse()
 
-parser:option("--fileType", "Type of file to be generated: server, client, ca"):argname("<string>")
+parser:option("--fileType", "Type of file to be generated: server, client, ca, dh"):argname("<string>")
 parser:option("--keySize", "Certificate key size"):argname("<int>")
 parser:option("--cn", "Common name and file name of the certificate"):argname("<string>")
 parser:option("--caFileName", "Certificate authority file and key name (Used for signing client and server certificates)"):argname("<file>")
@@ -121,6 +131,10 @@ elseif args.fileType == 'ca' and args.keySize and args.cn then
 
     -- generate CA
     generate_ca(info, env.certLocation, args.cn, args.keySize)
+elseif args.fileType == 'dh' and args.keySize and args.cn then
+
+    -- generate DH
+    generate_dh(env.certLocation, args.cn, args.keySize)
 else
     print("Invalid arguments")
 end

@@ -49,6 +49,19 @@ function certs.getCertInfo(filePath)
                 keyLength = contentObj:public():bits()
             }
 
+        elseif string.match(filePath, ".dh.pem" .. '$') then
+
+            return {
+                fileName = string.sub(filePath, string.len(env.certLocation) + 2),
+                filePath = filePath,
+                fileType = "dh",
+                commonName = nil,
+                notbefore = nil,
+                notafter = nil,
+                keyLength = nil,
+            }
+
+
         elseif string.match(filePath, ".key.pem" .. '$') then
 
             return {
@@ -70,7 +83,3 @@ function certs.getCertInfo(filePath)
 end
 
 return certs
-
-
-
-

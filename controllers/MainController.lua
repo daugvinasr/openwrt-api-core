@@ -71,6 +71,8 @@ function MainController.availableCerts(params, body, authorization, contentType)
     local dataCert = {}
     local dataReq = {}
     local dataKey = {}
+    local dataDH = {}
+
 
     local p = io.popen('find "' .. env.certLocation .. '" -type f')
 
@@ -82,12 +84,14 @@ function MainController.availableCerts(params, body, authorization, contentType)
                     table.insert(dataCert, temp)
                 elseif temp.fileType == "req" then
                     table.insert(dataReq, temp)
+                elseif temp.fileType == "dh" then
+                    table.insert(dataDH, temp)
                 elseif temp.fileType == "key" then
                     table.insert(dataKey, temp)
                 end
             end
         end
-        return { certs = dataCert, reqs = dataReq, keys = dataKey }
+        return { certs = dataCert, reqs = dataReq, dh = dataDH, keys = dataKey }
     else
         return { error = "could not find any compatible files" }
     end
@@ -140,6 +144,19 @@ function MainController.generateClientServerNotSigned(params, body, authorizatio
 
 end
 
+function MainController.generateDH(params, body, authorization, contentType)
 
+    local data = json.decode(body)
+
+    os.execute(string.format(
+        cert_generation .. " --fileType %s --keySize %s --cn %s",
+        shellquote(data["fileType"]),
+        shellquote(data["keySize"]),
+        shellquote(data["cn"])
+    ))
+
+    return { ok = "DH generation is in progress" }
+
+end
 
 return MainController

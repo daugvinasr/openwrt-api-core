@@ -18,6 +18,12 @@ routes = {
         handlerMethod = "generateClientServerNotSigned",
     },
     {
+        path = "/generateDH",
+        method = "POST",
+        handlerController = "MainController",
+        handlerMethod = "generateDH",
+    },
+    {
         path = "/availableCerts",
         method = "GET",
         handlerController = "MainController",
