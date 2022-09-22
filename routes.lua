@@ -6,16 +6,16 @@ routes = {
         handlerMethod = "generateCA",
     },
     {
-        path = "/generateClientServer",
+        path = "/generateCert",
         method = "POST",
         handlerController = "MainController",
-        handlerMethod = "generateClientServer",
+        handlerMethod = "generateCert",
     },
     {
-        path = "/generateClientServerNotSigned",
+        path = "/generateCertNotSigned",
         method = "POST",
         handlerController = "MainController",
-        handlerMethod = "generateClientServerNotSigned",
+        handlerMethod = "generateCertNotSigned",
     },
     {
         path = "/generateDH",

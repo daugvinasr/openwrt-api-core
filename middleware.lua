@@ -18,46 +18,39 @@ function middleware.checkIfTokenIsValid(authorization)
     end
 end
 
+function userRules(username)
+    for _, value in ipairs(env.logins) do
+        if username == value.username then
+            return value.rules
+        end
+    end
+    return nil
+end
+
 function middleware.checkUserSpecificRules(authorization, route)
     if authorization["Bearer"] ~= nil then
         local token = authorization["Bearer"]
         local decoded, err = jwt.decode(token, env.jwtKey, true)
-        if decoded.iss.username ~= nil then
-            for index, value in ipairs(env.logins) do
-                if decoded.iss.username == value.username then
-                    for rule in string.gmatch(value.rules, '([^|]+)') do
-                        if rule == "no" .. route.method then
-                            return false
-                        end
-                    end
-                    return true
-                end
-                return true
-            end
-            return true
-        end
-        return true
-    end
-    return false
-end
 
--- function middleware.checkUserSpecificRules(authorization, route)
---     if authorization["Bearer"] ~= nil then
---         local token = authorization["Bearer"]
---         local decoded, err = jwt.decode(token, env.jwtKey, true)
---         if decoded.iss.rules ~= nil then
---             for rule in string.gmatch(decoded.iss.rules, '([^|]+)') do
---                 if rule == "no" .. route.method then
---                     return false
---                 end
---             end
---             return true
---         else
---             return true
---         end
---     else
---         return false
---     end
--- end
+        if not decoded.iss.username then
+            return false
+        end
+
+        local rules = userRules(decoded.iss.username)
+        if rules == nil then
+            return false
+        end
+
+        for rule in string.gmatch(rules, '([^|]+)') do
+            if rule == "no" .. route.method then
+                return false
+            end
+        end
+
+        return true
+    else
+        return false
+    end
+end
 
 return middleware

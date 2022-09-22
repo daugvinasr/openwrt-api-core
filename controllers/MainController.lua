@@ -112,7 +112,7 @@ function MainController.generateCA(params, body, authorization, contentType)
 
 end
 
-function MainController.generateClientServer(params, body, authorization, contentType)
+function MainController.generateCert(params, body, authorization, contentType)
 
     local data = json.decode(body)
 
@@ -129,7 +129,7 @@ function MainController.generateClientServer(params, body, authorization, conten
 
 end
 
-function MainController.generateClientServerNotSigned(params, body, authorization, contentType)
+function MainController.generateCertNotSigned(params, body, authorization, contentType)
 
     local data = json.decode(body)
 

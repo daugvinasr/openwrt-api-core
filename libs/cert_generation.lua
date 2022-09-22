@@ -32,7 +32,7 @@ function generate_ca(subject, directory, name, keySize)
 
 end
 
-function generate_client_server(subject, directory, name, caName, keySize, daysValid)
+function generate_cert(subject, directory, name, caName, keySize, daysValid)
 
     local key_file = directory .. "/" .. name .. ".key.pem"
     local req_file = directory .. "/" .. name .. ".req.pem"
@@ -95,7 +95,8 @@ local parser = argparse()
 parser:option("--fileType", "Type of file to be generated: server, client, ca, dh"):argname("<string>")
 parser:option("--keySize", "Certificate key size"):argname("<int>")
 parser:option("--cn", "Common name and file name of the certificate"):argname("<string>")
-parser:option("--caFileName", "Certificate authority file and key name (Used for signing client and server certificates)"):argname("<file>")
+parser:option("--caFileName", "Certificate authority file and key name (Used for signing client and server certificates)")
+    :argname("<file>")
 parser:option("--daysValid", "Days until certificate expires"):argname("<int>")
 
 parser:option("--c", "Country Code"):argname("<string>")
@@ -106,7 +107,17 @@ parser:option("--ou", "Organizational Unit Name"):argname("<string>")
 
 local args = parser:parse()
 
-local info = { { CN = args.cn } };
+local keySize
+local cn
+local caFileName
+local daysValid
+
+if args.keySize then keySize = args.keySize else keySize = 2048 end
+if args.cn then cn = args.cn else cn = args.fileType .. "_teltonika" end
+if args.caFileName then caFileName = args.caFileName else caFileName = false end
+if args.daysValid then daysValid = args.daysValid else daysValid = false end
+
+local info = { { CN = cn } };
 
 if args.c then table.insert(info, { C = args.c }) end
 if args.st then table.insert(info, { ST = args.st }) end
@@ -114,31 +125,15 @@ if args.l then table.insert(info, { L = args.l }) end
 if args.o then table.insert(info, { O = args.o }) end
 if args.ou then table.insert(info, { OU = args.ou }) end
 
-
-if (args.fileType == 'client' or args.fileType == 'server')
-    and args.keySize and args.cn and args.daysValid and args.caFileName then
-
-    -- generate signed certificate
-    generate_client_server(info, env.certLocation, args.cn, args.caFileName, args.keySize, args.daysValid)
-
-elseif (args.fileType == 'client' or args.fileType == 'server')
-    and args.keySize and args.cn and args.daysValid == nil and args.caFileName == nil then
-
-    -- generate NOT signed certificate
-    generate_client_server(info, env.certLocation, args.cn, false, args.keySize, false)
-
-elseif args.fileType == 'ca' and args.keySize and args.cn then
-
-    -- generate CA
-    generate_ca(info, env.certLocation, args.cn, args.keySize)
-elseif args.fileType == 'dh' and args.keySize and args.cn then
-
-    -- generate DH
-    generate_dh(env.certLocation, args.cn, args.keySize)
+if (args.fileType == 'client' or args.fileType == 'server') then
+    generate_cert(info, env.certLocation, cn, caFileName, keySize, daysValid)
+elseif (args.fileType == 'ca') then
+    generate_ca(info, env.certLocation, cn, keySize)
+elseif (args.fileType == 'dh') then
+    generate_dh(env.certLocation, cn, keySize)
 else
-    print("Invalid arguments")
+    print("Invalid file type")
 end
-
 
 
 -- lua cert_generation.lua --fileType ca --keySize 512 --cn ca --c LT --st a --l a --o a --ou a
