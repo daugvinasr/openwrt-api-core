@@ -1,5 +1,11 @@
 routes = {
     {
+        path = "/mqttInit",
+        method = "POST",
+        handlerController = "BrokerController",
+        handlerMethod = "mqttInit",
+    },
+    {
         path = "/generateCA",
         method = "POST",
         handlerController = "MainController",
