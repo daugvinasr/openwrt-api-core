@@ -1,14 +1,13 @@
 local json = require "cjson"
 local env = require "./uhttpd/env"
-local uci = require "./uhttpd/libs/uci_handler"
+local config_handler = require "./uhttpd/libs/config_handler"
 local ubus = require "ubus"
-
 
 local BrokerController = {}
 
-function BrokerController.mqttInit(params, body, authorization, contentType)
+function BrokerController.mqttSet(params, body, authorization, contentType)
 
-    function validateConfig(configName)
+    local function validateConfig(configName)
         for index, value in ipairs(env.mqttOptions) do
             if configName == value then
                 return true
@@ -26,12 +25,10 @@ function BrokerController.mqttInit(params, body, authorization, contentType)
         end
     end
 
-    uci.loadConfig("mosquitto")
-    uci.deleteSection("mqtt")
-    uci.addNamed("mqtt", "mqtt", configs)
-
-    local u = ubus.connect()
-    u:call("uci", "reload_config", {})
+    local handler = config_handler.loadConfig("mosquitto")
+    handler:addNamed("mqtt", "mqtt", configs)
+    handler:commit()
+    handler:reloadConfigs()
 
     return { ok = "config written successfully" }
 end
