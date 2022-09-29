@@ -65,7 +65,9 @@ function handle_route(env, route)
    local authorization = getAuthorization(env)
    local contentType = env.CONTENT_TYPE
    local middlewareStatus = nil
-   local response
+   local responseName = nil
+   local responseCode = nil
+   local response = nil
 
    if route.middleware ~= nil then
       middlewareStatus = middlewareCheck(route, authorization)
@@ -73,9 +75,10 @@ function handle_route(env, route)
 
    if middlewareStatus == true or middlewareStatus == nil then
       -- controller[method](params, body, authorization, contentType) -- for debugging only
-      local status, error = pcall(function() response = controller[method](params, body, authorization, contentType) end)
-      if status then
-         responses.sendOk(uhttpd)
+      local status, error = pcall(function() responseName, responseCode, response = controller[method](params, body, authorization, contentType) end)
+      if status and responseName ~= nil and responseCode ~= nil and response ~= nil then
+         uhttpd.send("Status: ".. responseCode .." "..responseName.."\r\n")
+         uhttpd.send("Content-Type: application/json\r\n\r\n") 
          uhttpd.send(json.encode(response))
          os.exit()
       else

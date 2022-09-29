@@ -30,23 +30,7 @@ function BrokerController.mqttSet(params, body, authorization, contentType)
     handler:commit()
     handler:reloadConfigs()
 
-    return { ok = "config written successfully" }
+    return "OK", 200, "configuration saved successfully"
 end
 
 return BrokerController
-
-
-
--- option client_enabled '0'
--- option persistence '0'
--- option anonymous_access '1'
--- option local_port '1883'
--- option use_tls_ssl '1'
--- option _device_sec_files '1'
--- option tls_type 'cert'
--- option ca_file '/etc/certificates/ca.cert.pem'
--- option cert_file '/etc/certificates/server.cert.pem'
--- option key_file '/etc/certificates/ca.key.pem'
--- option tls_version 'all'
--- option enabled '1'
-

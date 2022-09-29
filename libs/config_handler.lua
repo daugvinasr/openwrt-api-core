@@ -21,6 +21,7 @@ end
 function config_handler:reloadConfigs()
     local u = ubus.connect()
     u:call("uci", "reload_config", {})
+    u:close()
 end
 
 function config_handler:addTyped(sectionName, data)

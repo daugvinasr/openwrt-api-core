@@ -21,17 +21,18 @@ function MainController.login(params, body, authorization, contentType)
             if username == value.username and password == value.password then
                 local payload = { iss = { username = value.username }, nbf = os.time(), exp = os.time() + 3600 }
                 local token, err = jwt.encode(payload, env.jwtKey, "HS256")
-                return { token = token }
+                return "OK", 200, { token = token }
             end
         end
-        return { error = "incorrect log in details provided" }
+        return "OK", 300, "Incorrect log in details provided"
     else
-        return { error = "wrong type of authorization chosen for the log in" }
+        return "OK", 300, "Wrong type of authorization chosen for the log in"
     end
 end
 
 function MainController.usersOnline(params, body, authorization, contentType)
-    return { people = 20 }
+    local response = { people = 20, devices = 10 }
+    return "OK", 200, response
 end
 
 function MainController.validation(params, body, authorization, contentType)
@@ -39,9 +40,9 @@ function MainController.validation(params, body, authorization, contentType)
     --      |contains:train|number|startsWith:train|endsWith:train|netmask|declined|accepted
     local text = json.decode(body)["test"]
     if validation.validate(text, "required|max:2") then
-        return { ok = "validation passed" }
+        return "OK", 200, "Validation passed"
     else
-        return { error = "validation failed" }
+        return "OK", 300, "Validation failed"
     end
 end
 
@@ -57,12 +58,12 @@ function MainController.fileUpload(params, body, authorization, contentType)
         if file ~= nil then
             file:write(data)
             file:close()
-            return { ok = "file uploaded successfully" }
+            return "OK", 200, "File uploaded successfully"
         else
-            return { error = "file could not be written to the system" }
+            return "OK", 500, "File could not be written to the system"
         end
     else
-        return { error = "wrong content type" }
+        return "OK", 300, "Wrong content type"
     end
 end
 
@@ -72,7 +73,6 @@ function MainController.availableCerts(params, body, authorization, contentType)
     local dataReq = {}
     local dataKey = {}
     local dataDH = {}
-
 
     local p = io.popen('find "' .. env.certLocation .. '" -type f')
 
@@ -91,9 +91,9 @@ function MainController.availableCerts(params, body, authorization, contentType)
                 end
             end
         end
-        return { certs = dataCert, reqs = dataReq, dh = dataDH, keys = dataKey }
+        return "OK", 200, { certs = dataCert, reqs = dataReq, dh = dataDH, keys = dataKey }
     else
-        return { error = "could not find any compatible files" }
+        return "OK", 200, "Could not find any compatible files"
     end
 end
 
@@ -108,8 +108,7 @@ function MainController.generateCA(params, body, authorization, contentType)
         shellquote(data["cn"])
     ))
 
-    return { ok = "CA generation is in progress" }
-
+    return "OK", 200, "CA generation is in progress"
 end
 
 function MainController.generateCert(params, body, authorization, contentType)
@@ -125,8 +124,7 @@ function MainController.generateCert(params, body, authorization, contentType)
         shellquote(data["daysValid"])
     ))
 
-    return { ok = "Certificate generation is in progress" }
-
+    return "OK", 200, "Certificate generation is in progress"
 end
 
 function MainController.generateCertNotSigned(params, body, authorization, contentType)
@@ -140,8 +138,7 @@ function MainController.generateCertNotSigned(params, body, authorization, conte
         shellquote(data["cn"])
     ))
 
-    return { ok = "Certificate generation is in progress" }
-
+    return "OK", 200, "Certificate generation is in progress"
 end
 
 function MainController.generateDH(params, body, authorization, contentType)
@@ -155,8 +152,7 @@ function MainController.generateDH(params, body, authorization, contentType)
         shellquote(data["cn"])
     ))
 
-    return { ok = "DH generation is in progress" }
-
+    return "OK", 200, "DH generation is in progress"
 end
 
 return MainController
